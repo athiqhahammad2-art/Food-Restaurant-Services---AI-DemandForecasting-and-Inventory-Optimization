@@ -108,5 +108,60 @@ This project is provided as-is for demonstration of AI demand forecasting and in
 
 ---
 
+## Streamlit Deployment (Community Cloud)
+
+You can deploy the Streamlit app (streamlit_app.py) to Streamlit Community Cloud (share.streamlit.io) for a quick public demo.
+
+Steps to deploy
+
+1. Open https://share.streamlit.io and sign in with your GitHub account.
+2. Click "New app" → choose your repository: `athiqhahammad2-art/Food-Restaurant-Services---AI-DemandForecasting-and-Inventory-Optimization`.
+3. Set Branch: `main` and Main file: `streamlit_app.py`.
+4. Click "Deploy". Streamlit Cloud will install packages from `requirements.txt` automatically and start the app.
+5. After deployment, open the public app URL shown by Streamlit.
+
+Important notes
+
+- Ensure `streamlit_app.py` is at the repository root (it is) so the import `from ml_models.demand_forecasting import DemandForecaster` works correctly.
+- requirements.txt must include `streamlit` and `plotly` (already added). If you add new dependencies, update requirements.txt and redeploy or trigger a rebuild.
+- Streamlit Community Cloud builds on-demand; check the build logs for package install errors.
+
+Troubleshooting & Logs
+
+- Where to find logs:
+  - In the deployed app page on Streamlit Cloud, open the "Logs" panel to see both build (pip install) and runtime logs (stderr/stdout).
+  - Locally, run `streamlit run streamlit_app.py` and watch the terminal output for errors and stack traces.
+
+- Common issues and fixes:
+
+  - ImportError: No module named 'ml_models'
+    - Cause: Streamlit might not be running from the repository root or the package path is not set.
+    - Quick fix: ensure `streamlit_app.py` is at repo root and redeploy. Locally, run from project root: `streamlit run streamlit_app.py`.
+    - Temporary workaround (not required if structure is correct): add at top of `streamlit_app.py`:
+
+      ```python
+      import os, sys
+      sys.path.append(os.path.dirname(__file__))
+      ```
+
+  - pip install errors during build
+    - Cause: missing system dependencies or conflicting package versions.
+    - Fix: Check the build log for the failing package; pin compatible versions in requirements.txt or add necessary system-level libs to the build image if required.
+
+  - App crashes or OOM during training
+    - Cause: Training large models or large datasets on Streamlit Cloud can hit memory/time limits.
+    - Fix: Reduce sample size, lower `n_estimators`, decrease `days_to_forecast`, or train offline and upload a serialized model instead.
+
+  - Runtime errors (ValueError / TypeError)
+    - Cause: Unexpected CSV formats or missing columns.
+    - Fix: Ensure uploaded CSV has columns `date` and `quantity_sold`, or use the app's sample dataset. Consider adding a column-mapping UI if you need flexibility.
+
+- If you encounter an issue you can't resolve, collect the following and open an issue in this repo:
+  1. Deployment build logs (copy from Streamlit Cloud Logs).
+  2. Runtime stack trace (from Logs panel or terminal).
+  3. A minimal sample CSV that reproduces the error (if related to data).
+
+---
+
 **Version:** 1.1.0
 **Last Updated:** 2026-07-02
